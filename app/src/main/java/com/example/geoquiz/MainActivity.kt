@@ -3,15 +3,12 @@ package com.example.geoquiz
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import com.example.geoquiz.databinding.ActivityMainBinding
 
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var trueButton: Button
-    private lateinit var falseButton: Button
     private lateinit var binding: ActivityMainBinding
 
     private val questionBank = listOf(
@@ -29,9 +26,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        trueButton = findViewById(R.id.true_button)
-        falseButton = findViewById(R.id.false_button)
-
 
 
         //Toasts
@@ -48,7 +42,13 @@ class MainActivity : AppCompatActivity() {
 
         //Makes the next button functional
         binding.nextButton.setOnClickListener {
-            currentIndex = (currentIndex + 1) % questionBank.size
+            currentIndex = (currentIndex + 1) % questionBank.size //makes the question wrap around
+            updateQuestion()
+        }
+
+        //Makes the prev button functional
+        binding.previousButton.setOnClickListener {
+            currentIndex = (currentIndex + questionBank.size - 1) % questionBank.size //makes the question wrap around
             updateQuestion()
         }
 
