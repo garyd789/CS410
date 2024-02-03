@@ -7,11 +7,14 @@ import android.view.View
 import android.widget.Toast
 import com.example.geoquiz.databinding.ActivityMainBinding
 import android.util.Log
+import com.google.android.material.snackbar.Snackbar
+
 
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
 
     private val questionBank = listOf(
         Question(R.string.question_australia, true),
@@ -22,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         Question(R.string.question_asia, true))
 
     private var currentIndex = 0
+    private var messageResId = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,24 +39,28 @@ class MainActivity : AppCompatActivity() {
         binding.trueButton.setOnClickListener { view: View ->
             // Do something in response to the click here
            checkAnswer(true)
+            Snackbar.make(view, messageResId, Snackbar.LENGTH_SHORT).show()
         }
 
         binding.falseButton.setOnClickListener { view: View ->
             // Do something in response to the click here
            checkAnswer(false)
+            Snackbar.make(view, messageResId, Snackbar.LENGTH_SHORT).show()
 
         }
 
         //Makes the next button functional
-        binding.nextButton.setOnClickListener {
+        binding.nextButton.setOnClickListener { view ->
             currentIndex = (currentIndex + 1) % questionBank.size //makes the question wrap around
             updateQuestion()
+
         }
 
         //Makes the prev button functional
-        binding.previousButton.setOnClickListener {
+        binding.previousButton.setOnClickListener { view ->
             currentIndex = (currentIndex + questionBank.size - 1) % questionBank.size //makes the question wrap around
             updateQuestion()
+
         }
 
         updateQuestion()
@@ -90,17 +98,15 @@ class MainActivity : AppCompatActivity() {
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = questionBank[currentIndex].answer
 
-        val messageResId = if (userAnswer == correctAnswer) {
+        messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast
         } else {
             R.string.incorrect_toast
         }
 
-        Toast.makeText(
-            this,
-            messageResId,
-            Toast.LENGTH_SHORT
-        ).show()
+
+
+
     }
 
 }
