@@ -4,10 +4,10 @@ import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import com.example.geoquiz.databinding.ActivityMainBinding
 import android.util.Log
 import com.google.android.material.snackbar.Snackbar
+import androidx.activity.viewModels
 
 
 private const val TAG = "MainActivity"
@@ -15,16 +15,10 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
+    private val quizViewModel: QuizViewModel by viewModels()
 
-    private val questionBank = listOf(
-        Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true))
 
-    private var currentIndex = 0
+
     private var messageResId = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +26,10 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate(Bundle?) called")
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.questionTextView.setText(quizViewModel.currentQuestionText)
+
+        Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
+
 
 
 
@@ -51,19 +49,15 @@ class MainActivity : AppCompatActivity() {
 
         //Makes the next button functional
         binding.nextButton.setOnClickListener { view ->
-            currentIndex = (currentIndex + 1) % questionBank.size //makes the question wrap around
+            quizViewModel.moveToNext()
             updateQuestion()
-
         }
 
-        //Makes the prev button functional
-        binding.previousButton.setOnClickListener { view ->
-            currentIndex = (currentIndex + questionBank.size - 1) % questionBank.size //makes the question wrap around
+
+        binding.previousButton.setOnClickListener {view ->
+            quizViewModel.moveToPrev()
             updateQuestion()
-
         }
-
-        updateQuestion()
 
     }
 
@@ -90,13 +84,13 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun updateQuestion() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         binding.questionTextView.setText(questionTextResId)
     }
 
     //function used to check answer
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = questionBank[currentIndex].answer
+        val correctAnswer = quizViewModel.currentQuestionAnswer
 
         messageResId = if (userAnswer == correctAnswer) {
             R.string.correct_toast

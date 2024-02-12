@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="24dp"
+            android:textColor="@color/black"
             tools:text="@string/question_australia" /> <!-- "tools:text" makes it clear that the text here is for preview purposes -->
         <LinearLayout
             android:layout_width="wrap_content"
