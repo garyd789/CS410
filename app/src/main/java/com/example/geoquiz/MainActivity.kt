@@ -1,11 +1,14 @@
 package com.example.geoquiz
 
+import android.app.Activity
+import android.content.Intent
 import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.example.geoquiz.databinding.ActivityMainBinding
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.snackbar.Snackbar
 import androidx.activity.viewModels
 
@@ -16,6 +19,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val quizViewModel: QuizViewModel by viewModels()
+
+
+    private val cheatLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // Handle the result
+        if (result.resultCode == Activity.RESULT_OK) {
+            quizViewModel.isCheater =
+                result.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+        }
+    }
 
 
 
@@ -33,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        //Toasts
+        //True and False Buttons
         binding.trueButton.setOnClickListener { view: View ->
             // Do something in response to the click here
            checkAnswer(true)
@@ -47,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        //Makes the next button functional
+        //Next and Prev Buttons
         binding.nextButton.setOnClickListener { view ->
             quizViewModel.moveToNext()
             updateQuestion()
@@ -57,6 +71,14 @@ class MainActivity : AppCompatActivity() {
         binding.previousButton.setOnClickListener {view ->
             quizViewModel.moveToPrev()
             updateQuestion()
+        }
+
+        //Cheat Buttons
+        binding.cheatButton.setOnClickListener {
+            // Start CheatActivity
+            val answerIsTrue = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
+            cheatLauncher.launch(intent)
         }
 
     }
@@ -91,12 +113,12 @@ class MainActivity : AppCompatActivity() {
     //function used to check answer
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
-
-        messageResId = if (userAnswer == correctAnswer) {
-            R.string.correct_toast
-        } else {
-            R.string.incorrect_toast
+        messageResId = when {
+            quizViewModel.isCheater -> R.string.judgment_toast
+            userAnswer == correctAnswer -> R.string.correct_toast
+            else -> R.string.incorrect_toast
         }
+
 
 
 
